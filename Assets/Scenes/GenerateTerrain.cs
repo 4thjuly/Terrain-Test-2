@@ -54,33 +54,46 @@ public class GenerateTerrain : MonoBehaviour {
             vertices[i].y = Mathf.PerlinNoise((vertices[i].x + this.transform.position.x) / DETAIL_SCALE, (vertices[i].z + this.transform.position.z) / DETAIL_SCALE) * HEIGHT_SCALE;
         }
 
-        // Separate for flat look
+        // Separate for flat look and color
         Vector3[] newVertices = new Vector3[triangles.Length];
+        Color32[] colors = new Color32[triangles.Length];
         for (int i = 0; i < triangles.Length; i++)
         {
             newVertices[i] = vertices[triangles[i]];
             triangles[i] = i;
         }
 
+        // Color
+        for (int i = 0; i < triangles.Length; )
+        {
+            Color32 color = new Color(Random.Range(0.0f, 1.0f),  Random.Range(0.0f, 1.0f),  Random.Range(0.0f, 1.0f),  1.0f);
+            colors[i++] = color;
+            colors[i++] = color;
+            colors[i++] = color;
+        }
+
         mesh.vertices = newVertices;
         mesh.triangles = triangles;
+        mesh.colors32 = colors;
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
 	}
 
-    float MOVE_SPEED = 0.01f;
+    float MOVE_SPEED = 0.1f;
+    float offsetX;
 
     void Update()
     {
         Mesh mesh = GetComponent<MeshFilter>().mesh;
         Vector3[] vertices = mesh.vertices;
-        // float offsetX = MOVE_SPEED * Time.deltaTime;
 
-        this.transform.Translate(MOVE_SPEED * Time.deltaTime, 0f, 0f);
+        this.offsetX += MOVE_SPEED * Time.deltaTime;
+
+        // this.transform.Translate(MOVE_SPEED * Time.deltaTime, 0f, 0f);
 
         for (int i = 0; i < vertices.Length; i++)
         {
-            vertices[i].y = Mathf.PerlinNoise((vertices[i].x + this.transform.position.x) / DETAIL_SCALE, (vertices[i].z + this.transform.position.z) / DETAIL_SCALE) * HEIGHT_SCALE;
+            vertices[i].y = Mathf.PerlinNoise((vertices[i].x + this.transform.position.x + this.offsetX) / DETAIL_SCALE, (vertices[i].z + this.transform.position.z) / DETAIL_SCALE) * HEIGHT_SCALE;
         }
 
         mesh.vertices = vertices;
