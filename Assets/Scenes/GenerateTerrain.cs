@@ -53,33 +53,51 @@ public class GenerateTerrain : MonoBehaviour {
             if (vertices[i].y < WATER_LEVEL) { vertices[i].y = WATER_LEVEL - 0.01f; }
         }
 
-        // Separate for flat look and color
         Vector3[] newVertices = new Vector3[triangles.Length];
         Color32[] colors = new Color32[triangles.Length];
         Color32 currentColor = new Color(0.0f, Random.Range(0.25f, 0.75f), 0.0f, 1.0f);
         Color32 waterColor = new Color(0.0f, 0.0f, 1.0f, 1.0f);
-        for (int i = 0; i < triangles.Length; i++) {
-            newVertices[i] = vertices[triangles[i]];
-            triangles[i] = i;
-            colors[i] = currentColor; 
-            if ((i + 1) % 6 == 0) {
-                if (newVertices[i].y < WATER_LEVEL) { currentColor = waterColor; }
-                else { currentColor = new Color(0.0f, Random.Range(0.25f, 0.75f), 0.0f, 1.0f); }
-            }
-        }
+        Color32 sandColor = new Color(0.76f, 0.70f, 0.50f, 1.0f);
 
-        //// Color
-        //for (int i = 0; i < triangles.Length; )
-        //{
-        //    // Color32 color = new Color(Random.Range(0.0f, 1.0f),  Random.Range(0.0f, 1.0f),  Random.Range(0.0f, 1.0f),  1.0f);
-        //    Color32 color = new Color(0.0f, Random.Range(0.25f, 0.75f), 0.0f, 1.0f);
-        //    colors[i++] = color;
-        //    colors[i++] = color;
-        //    colors[i++] = color;
-        //    colors[i++] = color;
-        //    colors[i++] = color;
-        //    colors[i++] = color;
-        //}
+        for (int i = 0; i < triangles.Length; ) {
+            // Separate quad vertices for flat look
+            newVertices[i] = vertices[triangles[i]];
+            newVertices[i + 1] = vertices[triangles[i + 1]];
+            newVertices[i + 2] = vertices[triangles[i + 2]];
+            newVertices[i + 3] = vertices[triangles[i + 3]];
+            newVertices[i + 4] = vertices[triangles[i + 4]];
+            newVertices[i + 5] = vertices[triangles[i + 5]];
+
+            triangles[i] = i;
+            triangles[i + 1] = i + 1;
+            triangles[i + 2] = i + 2;
+            triangles[i + 3] = i + 3;
+            triangles[i + 4] = i + 4;
+            triangles[i + 5] = i + 5;
+
+            // Color a quad
+            switch (GetQuadTerrainType(newVertices, i))
+            {
+                case TerrainType.Water:
+                    currentColor = waterColor;
+                    break;
+                case TerrainType.Sand:
+                    currentColor = sandColor;
+                    break;
+                default:
+                    currentColor = new Color(0.0f, Random.Range(0.25f, 0.75f), 0.0f, 1.0f);
+                    break;
+            }
+
+            colors[i] = currentColor;
+            colors[i+1] = currentColor;
+            colors[i+2] = currentColor;
+            colors[i+3] = currentColor;
+            colors[i+4] = currentColor;
+            colors[i+5] = currentColor;
+
+            i += 6;
+        }
 
         mesh.vertices = newVertices;
         mesh.triangles = triangles;
@@ -87,6 +105,35 @@ public class GenerateTerrain : MonoBehaviour {
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
 	}
+
+    enum TerrainType {
+        Normal = 1,
+        Sand, 
+        Water
+    }
+
+    TerrainType GetQuadTerrainType(Vector3[] vertices, int index)
+    {
+        if (index + 5 > vertices.Length) { return TerrainType.Normal;  }
+
+        if (vertices[index].y < WATER_LEVEL 
+            && vertices[index+1].y < WATER_LEVEL
+            && vertices[index+2].y < WATER_LEVEL
+            && vertices[index+3].y < WATER_LEVEL
+            && vertices[index+4].y < WATER_LEVEL
+            && vertices[index+5].y < WATER_LEVEL
+            ) return TerrainType.Water;
+
+        if (vertices[index].y > WATER_LEVEL
+            && vertices[index + 1].y > WATER_LEVEL
+            && vertices[index + 2].y > WATER_LEVEL
+            && vertices[index + 3].y > WATER_LEVEL
+            && vertices[index + 4].y > WATER_LEVEL
+            && vertices[index + 5].y > WATER_LEVEL
+            ) return TerrainType.Normal;
+
+        return TerrainType.Sand;
+    }
 
     float MOVE_SPEED = 0.1f;
     float offsetX;
