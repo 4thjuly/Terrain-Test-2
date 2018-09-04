@@ -7,6 +7,7 @@ public class GenerateTerrain : MonoBehaviour {
     static int QUADS_PER_SIDE = 50;
     static float HEIGHT_SCALE = 0.25f;
     static float DETAIL_SCALE = 0.5f;
+    static float WATER_LEVEL = 0.075f;
 
     // Use this for initialization
     void Start ()
@@ -46,8 +47,10 @@ public class GenerateTerrain : MonoBehaviour {
         }
 
         // Terrain adjust
+        float offset = Random.Range(1.0f, 5.0f);
         for (int i = 0; i < vertices.Length; i++)  {
-            vertices[i].y = Mathf.PerlinNoise((vertices[i].x + this.transform.position.x) / DETAIL_SCALE, (vertices[i].z + this.transform.position.z) / DETAIL_SCALE) * HEIGHT_SCALE;
+            vertices[i].y = Mathf.PerlinNoise((vertices[i].x + this.transform.position.x + offset) / DETAIL_SCALE, (vertices[i].z + this.transform.position.z) / DETAIL_SCALE) * HEIGHT_SCALE;
+            if (vertices[i].y < WATER_LEVEL) { vertices[i].y = WATER_LEVEL - 0.01f; }
         }
 
         // Separate for flat look and color
@@ -60,7 +63,7 @@ public class GenerateTerrain : MonoBehaviour {
             triangles[i] = i;
             colors[i] = currentColor; 
             if ((i + 1) % 6 == 0) {
-                if (newVertices[i].y < 0.075f) { currentColor = waterColor; }
+                if (newVertices[i].y < WATER_LEVEL) { currentColor = waterColor; }
                 else { currentColor = new Color(0.0f, Random.Range(0.25f, 0.75f), 0.0f, 1.0f); }
             }
         }
