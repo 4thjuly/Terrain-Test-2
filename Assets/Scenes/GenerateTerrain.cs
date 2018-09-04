@@ -66,7 +66,8 @@ public class GenerateTerrain : MonoBehaviour {
         // Color
         for (int i = 0; i < triangles.Length; )
         {
-            Color32 color = new Color(Random.Range(0.0f, 1.0f),  Random.Range(0.0f, 1.0f),  Random.Range(0.0f, 1.0f),  1.0f);
+            // Color32 color = new Color(Random.Range(0.0f, 1.0f),  Random.Range(0.0f, 1.0f),  Random.Range(0.0f, 1.0f),  1.0f);
+            Color32 color = new Color(0.0f, Random.Range(0.25f, 0.75f), 0.0f, 1.0f);
             colors[i++] = color;
             colors[i++] = color;
             colors[i++] = color;
