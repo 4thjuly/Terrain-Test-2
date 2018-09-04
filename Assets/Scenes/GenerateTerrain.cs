@@ -71,6 +71,9 @@ public class GenerateTerrain : MonoBehaviour {
             colors[i++] = color;
             colors[i++] = color;
             colors[i++] = color;
+            colors[i++] = color;
+            colors[i++] = color;
+            colors[i++] = color;
         }
 
         mesh.vertices = newVertices;
